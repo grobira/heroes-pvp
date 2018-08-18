@@ -1,20 +1,33 @@
 import { Injectable } from "@nestjs/common";
-import { Hero } from "./hero/hero.interface";
 import { BattleReport } from "./battleReport.interface";
+import { Observable } from "rxjs";
+import { HeroRepository } from "./hero.repository";
 
 
 @Injectable()
 export class BattleService{
-    hero1: any;
-    hero2: any;
+    constructor(private readonly heroRepository: HeroRepository){}
 
 
-    battle(hero1: Hero, hero2: Hero): BattleReport{
-        // do battle and return battle report
-        console.log(hero1);
-        console.log(hero2);
+    battle(hero1: string, hero2: string, res): BattleReport{
+        let hero = [];
+
+        let obs = Observable.create( observer =>{
+            this.heroRepository.getHero(hero1).subscribe( data =>{
+                observer.next(data);
+            });
+            this.heroRepository.getHero(hero2).subscribe( data =>{
+                observer.next(data);
+            }).add(()=> observer.next());
+        });
+
+        obs.subscribe(data => {
+            if(data)
+                hero.push(data);
+            else{
+                res.send(hero);
+            }
+        });
         return null
     } 
-
-
 }
