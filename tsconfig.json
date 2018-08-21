@@ -15,7 +15,8 @@
     "baseUrl": "./src"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "index.ts"
   ],
   "exclude": [
     "node_modules",
