@@ -1,5 +1,6 @@
 import { Controller, Get, Res, Post, Body } from "@nestjs/common";
 import { BattleService } from "./battle.service";
+import { Observable } from "rxjs";
 
 
 @Controller('battle')
@@ -13,7 +14,7 @@ export class BattleController {
     }
   
     @Post('/')
-    battle(@Body('id1') id1: string, @Body('id2') id2: string, @Res() res){
-        this.battleService.battle(id1, id2, res);
+    battle(@Body() heroes, @Res() res){
+        this.battleService.battle(heroes.id1, heroes.id2).subscribe((data) => res.send(data));
     }
 }
