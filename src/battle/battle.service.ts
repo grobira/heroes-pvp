@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Observable, forkJoin } from "rxjs";
 import { HeroRepository } from "./hero.repository";
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import { InjectModel } from "@nestjs/mongoose";
 import { HeroScore } from "./heroScore/heroScore.interface";
 import { Model } from 'mongoose';
@@ -22,15 +22,7 @@ export class BattleService{
             obs.subscribe( async (data) =>{
                 let hero1 = data[0];
                 let hero2 = data[1];
-
-                let looser;
-                let winner = this.doBattle(hero1, hero2);
-                if(winner._id == hero1._id)
-                    looser = hero2;
-                else
-                    looser = hero1;
-
-                observer.next(winner);
+                observer.next(this.doBattle(hero1, hero2));
             });
 
         });
@@ -49,16 +41,17 @@ export class BattleService{
             numTurns++;
         }
 
-        let winner;
-
-        if(hero1.hp > hero2.hp)
+        let winner, looser;
+        if(hero1.hp > hero2.hp){
             winner = hero1;
-        else
+            looser = hero2;
+        }else{
             winner = hero2;
-
+            looser = hero1;
+        }
         console.log(chalk.red(`${winner.firstname} is the winner with ${winner.hp} HP. The battle took ${numTurns} turns.`));
 
-        return winner;
+        return {"winner" : winner, "looser" : looser, "remaingHp" : winner.hp, "turns": numTurns};
     }
 
     strAtk(hero): number{
