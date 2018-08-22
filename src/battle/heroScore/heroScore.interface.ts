@@ -1,5 +1,5 @@
 import {Document} from 'mongoose';
-import { Hero } from './hero.interface';
+import { Hero } from '../hero/hero.interface';
 
 export interface HeroScore extends Document{
     hero : Hero;
