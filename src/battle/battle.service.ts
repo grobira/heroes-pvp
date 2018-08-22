@@ -71,19 +71,19 @@ export class BattleService{
 
     strAtk(hero): number{
         let odd = Math.random();
-        if ( odd < hero.strAtk.odds)
+        if ( odd < hero.strAtk.odds + (hero.status.dex/100))
             return 0;
 
-        let damage = hero.status.str * hero.multipliers.str * 10;
+        let damage = (hero.status.str * hero.strAtk.damage * 6) + (Math.random()*100*(hero.status.dex)/2) ;
         return Math.floor(damage*this.isCrit(hero));
     }
 
     intAtk(hero): number{
         let odd = Math.random();
-        if ( odd < hero.intAtk.odds)
+        if ( odd < hero.intAtk.odds + (hero.status.dex/140))
             return 0;
 
-        let damage = hero.status.int * hero.multipliers.int * 50;
+        let damage = (hero.status.int * hero.intAtk.damage * 20) + (Math.random()*50*(hero.status.dex)/4);
         return Math.floor(damage);
     }
 
@@ -91,7 +91,7 @@ export class BattleService{
         let odds = 0.05 + hero.status.lck/120 + hero.status.dex/200;
         if(odds < Math.random()){
             console.log(chalk.bgRed("Critical!!"));
-            return 1.75;
+            return 1.5 + (hero.status.lck+hero.status.dex)/150;
         }
         
         return 1;
