@@ -2,14 +2,17 @@ import { Injectable } from "@nestjs/common";
 import { Observable, forkJoin } from "rxjs";
 import { HeroRepository } from "./hero.repository";
 import chalk from 'chalk';
+import * as mongoose from 'mongoose';
 import { InjectModel } from "@nestjs/mongoose";
 import { HeroScore } from "./heroScore/heroScore.interface";
 import { Model } from 'mongoose';
+import { BattleReport } from "./hero/battleReport.interface";
+import { BattleReportSchema } from "./hero/battleReport.schema";
 
 @Injectable()
 export class BattleService{
     constructor(private readonly heroRepository: HeroRepository,
-        @InjectModel('HeroScore') private readonly scoreModel: Model<HeroScore>){}
+        @InjectModel('BattleReport') private readonly battleReportModel: Model<BattleReport>){}
 
 
     battle(hero1: string, hero2: string): any{
@@ -19,23 +22,32 @@ export class BattleService{
         )
 
         return  Observable.create((observer) =>{
-            obs.subscribe( async (data) =>{
+            obs.subscribe( (data) =>{
                 let hero1 = data[0];
                 let hero2 = data[1];
-                observer.next(this.doBattle(hero1, hero2));
+                
+                let battleReport = this.doBattle(hero1, hero2);
+                this.saveBattleReport(battleReport);
+                //this.updateScores(); To do
+                observer.next(battleReport);
             });
 
         });
     }
 
-    doBattle(hero1, hero2){
+    saveBattleReport(battle: BattleReport){
+        let battleReportLog = new this.battleReportModel(battle);
+        battleReportLog.save();
+    }
+
+    doBattle(hero1, hero2): BattleReport{
         let numTurns : number = 0;
 
         while(hero1.hp >= 0 && hero2.hp >=0){
-            let damage =  this.strAtk(hero2)*this.isCrit(hero2) + this.intAtk(hero2);
+            let damage =  this.strAtk(hero2) + this.intAtk(hero2);
             hero1.hp = hero1.hp - damage;
             console.log(chalk.blue(`${hero1.firstname} take ${damage}. Remaing HP = ${hero1.hp}`));
-            damage = this.strAtk(hero1)*this.isCrit(hero1) + this.intAtk(hero1);
+            damage = this.strAtk(hero1) + this.intAtk(hero1);
             hero2.hp = hero2.hp - damage;
             console.log(chalk.magenta(`${hero2.firstname} take ${damage}. Remaing HP = ${hero2.hp}`));
             numTurns++;
@@ -49,9 +61,12 @@ export class BattleService{
             winner = hero2;
             looser = hero1;
         }
+
+        if(winner.hp < 0)
+            winner.hp = 1;
         console.log(chalk.red(`${winner.firstname} is the winner with ${winner.hp} HP. The battle took ${numTurns} turns.`));
 
-        return {"winner" : winner, "looser" : looser, "remaingHp" : winner.hp, "turns": numTurns};
+        return {"winner" : winner, "looser" : looser, "remaingHp" : Math.round(winner.hp), "turns": numTurns};
     }
 
     strAtk(hero): number{
@@ -60,7 +75,7 @@ export class BattleService{
             return 0;
 
         let damage = hero.status.str * hero.multipliers.str * 10;
-        return damage;
+        return Math.floor(damage*this.isCrit(hero));
     }
 
     intAtk(hero): number{
@@ -69,13 +84,15 @@ export class BattleService{
             return 0;
 
         let damage = hero.status.int * hero.multipliers.int * 50;
-        return damage;
+        return Math.floor(damage);
     }
 
     isCrit(hero): number{
-        let odds = 5 + hero.status.lck/3 + hero.status.dex/10;
-        if(odds < Math.random())
-            return 1.5;
+        let odds = 0.05 + hero.status.lck/120 + hero.status.dex/200;
+        if(odds < Math.random()){
+            console.log(chalk.bgRed("Critical!!"));
+            return 1.75;
+        }
         
         return 1;
     }
