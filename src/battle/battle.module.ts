@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { BattleService } from './battle.service';
 import { BattleController } from './battle.controller';
 import { HeroRepository } from './hero.repository';
-import { BattleReportSchema } from './hero/battleReport.schema';
+import { BattleReportService } from 'battleReport/battleReport.service';
+import { BattleReportModule } from '../battleReport/battleReport.module';
 
 @Module({
-    imports: [MongooseModule.forFeature([{name: 'BattleReport', schema: BattleReportSchema}])],
+    imports: [BattleReportModule],
     controllers: [BattleController],
     providers: [BattleService, HeroRepository],
     exports: [BattleService]

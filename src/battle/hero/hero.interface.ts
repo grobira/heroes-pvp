@@ -34,4 +34,5 @@ export interface Hero extends Document {
         damage: number,
         odds: number
     }
+
 }

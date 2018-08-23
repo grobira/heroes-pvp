@@ -2,17 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { Observable, forkJoin } from "rxjs";
 import { HeroRepository } from "./hero.repository";
 import chalk from 'chalk';
-import * as mongoose from 'mongoose';
-import { InjectModel } from "@nestjs/mongoose";
-import { HeroScore } from "./heroScore/heroScore.interface";
-import { Model } from 'mongoose';
-import { BattleReport } from "./hero/battleReport.interface";
-import { BattleReportSchema } from "./hero/battleReport.schema";
+import { BattleReport } from "battleReport/model/battleReport.interface";
+import { BattleReportService } from "battleReport/battleReport.service";
 
 @Injectable()
 export class BattleService{
-    constructor(private readonly heroRepository: HeroRepository,
-        @InjectModel('BattleReport') private readonly battleReportModel: Model<BattleReport>){}
+    constructor(private readonly heroRepository: HeroRepository, private readonly battleReportService : BattleReportService){}
 
 
     battle(hero1: string, hero2: string): any{
@@ -27,7 +22,7 @@ export class BattleService{
                 let hero2 = data[1];
                 
                 let battleReport = this.doBattle(hero1, hero2);
-                this.saveBattleReport(battleReport);
+                this.battleReportService.add(this.prepareReport(battleReport));
                 //this.updateScores(); To do
                 observer.next(battleReport);
             });
@@ -35,13 +30,19 @@ export class BattleService{
         });
     }
 
-    saveBattleReport(battle: BattleReport){
-        let battleReportLog = new this.battleReportModel(battle);
-        battleReportLog.save();
+    prepareReport(battleReport){
+        let report = {
+            'winner' : battleReport.winner._id,
+            'looser' : battleReport.looser._id,
+            'remaingHp' : battleReport.remaingHp,
+            'turns' : battleReport.turns,
+        }
+        return report;
     }
 
     doBattle(hero1, hero2): BattleReport{
         let numTurns : number = 0;
+        let winner, looser;
 
         while(hero1.hp >= 0 && hero2.hp >=0){
             let damage =  this.strAtk(hero2) + this.intAtk(hero2);
@@ -53,7 +54,6 @@ export class BattleService{
             numTurns++;
         }
 
-        let winner, looser;
         if(hero1.hp > hero2.hp){
             winner = hero1;
             looser = hero2;
@@ -90,10 +90,8 @@ export class BattleService{
     isCrit(hero): number{
         let odds = 0.05 + hero.status.lck/120 + hero.status.dex/200;
         if(odds < Math.random()){
-            console.log(chalk.bgRed("Critical!!"));
             return 1.5 + (hero.status.lck+hero.status.dex)/150;
         }
-        
         return 1;
     }
 
