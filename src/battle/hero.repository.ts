@@ -7,8 +7,11 @@ export class HeroRepository{
     @Client({ transport: Transport.TCP, options: {port: 3002}})
     client: ClientProxy;
 
-    getHero(id: String): Observable<any>{
+    getHero(id: string): Observable<any>{
         const pattern = { cmd: 'findOne' };
-        return this.client.send<any>(pattern, id);
+        const data = id;
+        return this.client.send<String>(pattern, data);
     }
+
+    
 }

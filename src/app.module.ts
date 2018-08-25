@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AppController } from 'app.controller';
-import { AppService } from 'app.service';
-import { BattleController } from 'battle/battle.controller';
-import { BattleService } from 'battle/battle.service';
-import { HeroRepository } from 'battle/hero.repository';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { BattleModule } from 'battle/battle.module';
+import { BattleReportModule } from 'battleReport/battleReport.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController, BattleController],
-  providers: [AppService, BattleService, HeroRepository],
+  imports : [MongooseModule.forRoot('mongodb://localhost:27017/heroes'), BattleModule, BattleReportModule],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
