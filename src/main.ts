@@ -13,6 +13,7 @@ async function bootstrap() {
     }
   });
 
+  app.enableCors();
   await app.startAllMicroservicesAsync();
   await app.listen(3004);
 }

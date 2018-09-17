@@ -12,6 +12,4 @@ export class HeroRepository{
         const data = id;
         return this.client.send<String>(pattern, data);
     }
-
-    
 }
