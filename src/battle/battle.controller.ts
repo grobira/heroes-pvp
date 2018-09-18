@@ -14,6 +14,6 @@ export class BattleController {
   
     @Post('/')
     battle(@Body() heroes, @Res() res){
-        this.battleService.battle(heroes.id1, heroes.id2).subscribe((data) => res.send(data));
+        this.battleService.battle(heroes.id1, heroes.id2).subscribe((data) => {res.send(data)}, (error) => {res.send(error)});
     }
 }

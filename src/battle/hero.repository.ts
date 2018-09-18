@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Client, Transport, ClientProxy } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { Observable, observable } from "rxjs";
 
 @Injectable()
 export class HeroRepository{

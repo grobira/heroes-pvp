@@ -9,6 +9,6 @@ export const BattleReportSchema = new Schema({
     turns: Number,
 });
 
-BattleReportSchema.pre('save', () => {
+BattleReportSchema.post('save', () => {
     console.log(chalk.green("New Battle Report Created!"))
 });
