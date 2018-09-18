@@ -1,6 +1,5 @@
 import { Controller, Get, Res, Post, Body } from "@nestjs/common";
 import { BattleService } from "./battle.service";
-import { Observable } from "rxjs";
 
 
 @Controller('battle')
